@@ -1,0 +1,75 @@
+Configuring on Windows
+======================
+
+CMake variables to be set for use with AMD's OpenCL (required AMD App SDK and probably AMD's graphics driver):
+
+    OpenCL_INCLUDE_DIR  :  C:/Program Files (x86)/AMD APP SDK/3.0/lib/x86/OpenCL.lib
+
+    OpenCL_LIBRARY      :  C:/Program Files (x86)/AMD APP SDK/3.0/include/ (*not* to include/CL which will break the build but which CMake won't notice)
+
+
+Boost will be found by default if it's installed in the 'right' place, such that the following folder exists:
+
+    C:/Program Files (x86)/boost/boost_1_60_0
+
+Note that CMake can be fine even if showing Boost_DIR as being Boost_DIR-NOTFOUND, provided the other Boost-related variables (such as Boost_INCLUDE_DIR) are populated correctly.
+
+
+
+Using CodeXL from Visual Studio
+===============================
+
+Adding the .cl file
+-------------------
+
+Switch it to Analyze Mode in the CodeXL drop-down, then add main.cl as an existing OpenCL source file.
+
+Then create an OpenCL 'folder' and add the .cl file to it. This enables CodeXL's offline analysis tooling to be used.
+
+Point CodeXL at the correct Visual Studio Project
+-------------------------------------------------
+
+In the Solution Explorer, right click the solution and click Properties. In the Startup Project tab, change the 'Single Startup Project' to 'main' (and *not* ALL_BUILD).
+
+To confirm that this has had the desired effect, go to the CodeXL dropdown > CodeXL Project Settings > General and see that CodeXL Project Name is 'main'. (This field cannot be modified directly.)
+
+
+Debugging OpenCL Kernel Code in CodeXL
+--------------------------------------
+
+Ensure GPU execution. Breakpoints don't work on CPU execution. (The opposite way round to Intel's SDK.)
+
+In theory it's as simple as: ensure you've done a DEBUG build of the solution, set CodeXL to Debug mode (*not* Analyze mode) and start a CodeXL Debug session. This is supposed to honour any breakpoints you've set in your .cl file.
+
+At time of writing (April 2016), CodeXL's breakpoints seem to be broken: it fails to equate your .cl file and the temporary .cl file it creates during execution. The only way I was able to step into kernel code was by setting a breakpoint for my kernel, rather than for a line in the code. Do this by:
+
+CodeXL dropdown > Breakpoints > New CodeXL Breakpoint... > Kernel functions > [type kernel function name]
+
+Having done this, when you run a CodeXL debugging session (*not* an ordinary Visual Studio debugging session), you will see execution halt at the top of your kernel function, and will be able to step through its execution, or to set 'ordinary breakpoints' (at the relevant lines of code) and then resume execution until they are reached.
+
+
+
+Configuring Visual Studio for OpenCL: Intel SDK
+===============================================
+
+Note: this documentation is old, and may be out of date
+
+Intel SDK debugging works only on Intel CPUs. It does *not* work on Intel GPUs.
+Additionally, non-Intel CPUs are not supported.
+
+If using the Intel OpenCL SDK, and want to use the OpenCL debugging:
+
+   - Convert the 'common' Visual Studio project into an OpenCL project
+      * Right click the project
+	  * Click *Convert to a project for OpenCL API*
+
+   - Right click the new OpenCL Files folder in the project
+      * Click Add > Existing Item...
+	  * Select all the .cl files in the kernels root folder (ctrl+click)
+	  * Click Add
+
+Additionally, you must set the appropriate OpenCL compilation flags.
+   - Right-click the .cl file > Properties
+   - Find: Intel SDK For OpenCL Applications > General > Additional build options
+   - Paste into that field:
+      * `-I .`
