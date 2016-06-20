@@ -88,8 +88,6 @@ void releaseKernels() {
 }
 
 
-
-
 void releaseBuffers() {
         cl_int status = clReleaseMemObject(input_buffer_g);
         BOOST_ASSERT_MSG( (CL_SUCCESS == status), "Error releasing input_buffer_g" );
@@ -97,7 +95,6 @@ void releaseBuffers() {
 }
 
 
-// TODO remove needless parameters
 void initialiseBuffers() {
         cl_int status = !CL_SUCCESS;
 
