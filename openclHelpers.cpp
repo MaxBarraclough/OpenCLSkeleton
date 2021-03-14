@@ -350,7 +350,12 @@ static SuccessValue searchPlatformForDeviceOfType(cl_platform_id platform, cl_de
         /* Choose the first device of the desired kind, if one is found at all. Otherwise return FAILURE_VAL. */
         cl_uint numDevices = 0;
         cl_int  status = clGetDeviceIDs(platform, desiredDeviceKind, 0, NULL, &numDevices);
-        BOOST_ASSERT(( CL_SUCCESS == status ));
+
+        if (CL_DEVICE_NOT_FOUND == status) {
+            BOOST_ASSERT_MSG((false), "The call to clGetDeviceIDs failed with error-code CL_DEVICE_NOT_FOUND");
+        } else {
+            BOOST_ASSERT_MSG(( CL_SUCCESS == status ), "The call to clGetDeviceIDs failed");
+        }
 
         SuccessValue ret = SuccessValue::FAILURE_VAL;
         if (0 == numDevices) { // no device of desired kind is available
